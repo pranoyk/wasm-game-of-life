@@ -1,7 +1,7 @@
 mod utils;
 
-use wasm_bindgen::prelude::*;
 use std::fmt;
+use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 #[repr(u8)]
@@ -19,7 +19,7 @@ pub struct Universe {
 }
 
 impl Universe {
-    fn get_index(&self, row: u32, column: u32) -> usize{
+    fn get_index(&self, row: u32, column: u32) -> usize {
         (row * self.width + column) as usize
     }
 
@@ -57,7 +57,7 @@ impl Universe {
                     (Cell::Alive, 2) | (Cell::Alive, 3) => Cell::Alive,
                     (Cell::Alive, x) if x > 3 => Cell::Dead,
                     (Cell::Dead, x) if x == 3 => Cell::Alive,
-                    (otherwise, _) => otherwise
+                    (otherwise, _) => otherwise,
                 };
 
                 next[idx] = next_cell;
@@ -95,6 +95,16 @@ impl Universe {
         self.height
     }
 
+    pub fn set_height(&mut self, height: u32) {
+        self.height = height;
+        self.cells = (0..self.width * height).map(|_i| Cell::Dead).collect();
+    }
+
+    pub fn set_width(&mut self, width: u32) {
+        self.width = width;
+        self.cells = (0..width * self.height).map(|_i| Cell::Dead).collect();
+    }
+
     pub fn cells(&self) -> *const Cell {
         self.cells.as_ptr()
     }
@@ -115,5 +125,18 @@ impl fmt::Display for Universe {
         }
 
         Ok(())
+    }
+}
+
+impl Universe {
+    pub fn get_cells(&self) -> &[Cell] {
+        &self.cells
+    }
+
+    pub fn set_cells(&mut self, cells: &[(u32, u32)]) {
+        for (row, col) in cells.iter().cloned() {
+            let idx = self.get_index(row, col);
+            self.cells[idx] = Cell::Alive;
+        }
     }
 }
